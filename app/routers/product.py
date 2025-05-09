@@ -1,5 +1,5 @@
 from typing import List
-from fastapi import APIRouter,Depends,status,HTTPException,Response
+from fastapi import APIRouter,Depends,status,HTTPException
 from .. import schemas,models
 from sqlalchemy.orm import Session
 from ..database import get_db
@@ -18,7 +18,7 @@ def all(db:Session =Depends(get_db)):
 
 @router.post('/',status_code=status.HTTP_201_CREATED)
 def create(request :schemas.Product , db : Session =Depends(get_db) ):
-    new_product= models.Product(name=request.name,price=request.price)
+    new_product= models.Product(name=request.name,price=request.price,stock=request.stock)
     db.add(new_product)
     db.commit()
     db.refresh(new_product)
@@ -28,7 +28,7 @@ def create(request :schemas.Product , db : Session =Depends(get_db) ):
 def destroy(id,db:Session=Depends(get_db)):
     product =db.query(models.Product).filter(models.Product.id==id)
     if not product.first():
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail=f'blog with id {id} is not available')
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail=f'product with id {id} is not available')
     product.delete(synchronize_session=False)
     db.commit()
     return 'done'
@@ -38,9 +38,9 @@ def destroy(id,db:Session=Depends(get_db)):
 def update(id,request: schemas.Product,db:Session=Depends(get_db)):
     product=db.query(models.Product).filter(models.Product.id==id)
     if not product.first():
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail=f'blog with id {id} is not available')
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail=f'product with id {id} is not available')
     
-    product.update(request,synchronize_session=False)
+    product.update({"name":request.name,"price":request.price,"stock":request.stock},synchronize_session=False)
     db.commit()
     return 'updated'
 
