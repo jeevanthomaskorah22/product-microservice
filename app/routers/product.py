@@ -54,6 +54,4 @@ def show(id,db:Session =Depends(get_db)):
         #return{'detail':f'Product with the id {id} is not available'}
     return product
 
-#LEARNINGS
-#STATUS CODES 
-#create:201,get:200,exception:404
+
